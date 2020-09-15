@@ -1,5 +1,12 @@
 Ty   8/27   Assignment 1
 
+---------
+# Grade
+
+3/3 - Excellent progress. Don't worry your 'path towards personal fulfillment' will definitely be complete once we get to dataframes :) 
+
+---
+
 # This is Ty's homework for week 3
 
 ## ... no longer 2, not yet 4
