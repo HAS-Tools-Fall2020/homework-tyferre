@@ -69,7 +69,7 @@ ilist = []
 # and adding the index value to the ilist
 # if it meets some criteria that I specify
 for i in range(len(flow)):
-        if flow [i] > 600 and month[i] == 7:
+        if flow [i] > 198 and month[i] == 9:
                 ilist.append(i)
 
 # see how many times the criteria was met by checking the length
@@ -78,8 +78,11 @@ print(len(ilist))
 
 # Alternatively I could have  written the for loop I used 
 # above to  create ilist like this
-ilist2 = [i for i in range(len(flow)) if flow[i] > 600 and month[i]==7]
-print(len(ilist2))
+ilist2 = [i for i in range(len(flow)) if flow[i] > 198 and month[i]==9 and year[i]>=2010]
+ilist3 = [i for i in range(len(flow)) if flow[i] > 0 and month[i]==9 and year[i]>=2010]
+
+print('exceeding days ', len(ilist2))
+print('fraction exceeding ', len(ilist2)/len(ilist3))
 
 # Grabbing out the data that met the criteria
 # This  subset of data is just the elements identified 

@@ -46,4 +46,4 @@ ax.set_xlabel('Date')
 print()
 print('Median over entire time series = ',np.median(data.flow))
 print('Mean over entire time series = ',np.mean(data.flow))
-# %%
+
