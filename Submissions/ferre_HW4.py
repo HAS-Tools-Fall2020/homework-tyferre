@@ -39,135 +39,46 @@ data['year'] = data['year'].astype(int)
 data['month'] = data['month'].astype(int)
 data['day'] = data['day'].astype(int)
 
-#make lists of the data
-flow = data.flow.values.tolist()
-date = data.datetime.values.tolist()
-year = data.year.values.tolist()
-month = data.month.values.tolist()
-day = data.day.values.tolist()
+# Make a numpy array of this data
+flow_data = data[['year', 'month','day', 'flow']].to_numpy()
 
 # Getting rid of the pandas dataframe since we wont be using it this week
 del(data)
 
 # %%
-# Here is some starter code to illustrate some things you might like to do
-# Modify this however you would like to do your homework. 
-# From here on out you should use only the lists created in the last block:
-# flow, date, yaer, month and day
+# Starter Code
+# Count the number of values with flow > 600 and month ==7
+flow_count = np.sum((flow_data[:,3] > 600) & (flow_data[:,1]==7))
 
-# Calculating some basic properites
-print(min(flow))
-print(max(flow))
-print(np.mean(flow))
-print(np.std(flow))
+# Calculate the average flow for these same criteria 
+flow_mean = np.mean(flow_data[(flow_data[:,3] > 600) & (flow_data[:,1]==7),3])
 
-# Making and empty list that I will use to store
-# index values I'm interested in
-ilist = []
+print("Flow meets this critera", flow_count, " times")
+print('And has an average value of', flow_mean, "when this is true")
 
-# Loop over the length of the flow list
-# and adding the index value to the ilist
-# if it meets some criteria that I specify
-for i in range(len(flow)):
-        if flow [i] > 198 and month[i] == 9:
-                ilist.append(i)
+# Make a histogram of data
+# Use the linspace  funciton to create a set  of evenly spaced bins
+mybins = np.linspace(0, 1000, num=15)
+# another example using the max flow to set the upper limit for the bins
+#mybins = np.linspace(0, np.max(flow_data[:,3]), num=15) 
+#Plotting the histogram
+plt.hist(flow_data[:,3], bins = mybins)
+plt.title('Streamflow')
+plt.xlabel('Flow [cfs]')
+plt.ylabel('Count')
 
-# see how many times the criteria was met by checking the length
-# of the index list that was generated
-print(len(ilist))
-
-# Alternatively I could have  written the for loop I used 
-# above to  create ilist like this
-ilist2 = [i for i in range(len(flow)) if flow[i] > 198 and month[i]==9 and year[i]>=2010]
-ilist3 = [i for i in range(len(flow)) if flow[i] > 0 and month[i]==9 and year[i]>=2010]
-
-print('exceeding days ', len(ilist2))
-print('fraction exceeding ', len(ilist2)/len(ilist3))
-
-# Grabbing out the data that met the criteria
-# This  subset of data is just the elements identified 
-# in the ilist
-subset = [flow[j] for j in ilist]
-
-
+# Get the quantiles of flow
+# Two different approaches ---  you should get the same answer
+# just using the flow column
+flow_quants1 = np.quantile(flow_data[:,3], q=[0,0.1, 0.5, 0.9])
+print('Method one flow quantiles:', flow_quants1)
+# Or computing on a colum by column basis 
+flow_quants2 = np.quantile(flow_data, q=[0,0.1, 0.5, 0.9], axis=0)
+# and then just printing out the values for the flow column
+print('Method two flow quantiles:', flow_quants2[:,3])
 
 # %%
 # Ty's code - week 4
-
-recentweeks2exclude=0
-
-months2consider=24
-months2extend=2
-weeks2consider=months2consider*4
-weeks2extend=months2extend*4
-
-flowbyday=flow.copy()
-# remove peak flows
-cutoff_quantile=0.8
-flowbyday[flowbyday>np.quantile(flowbyday,cutoff_quantile)]=float("Nan")
-
-if recentweeks2exclude>0:
-        flowbyday=flowbyday[:-7*recentweeks2exclude]
-remainder=np.shape(flowbyday)[0]%28    # cut down to whole multiple of 28 day months
-flowbyday=flowbyday[remainder:]
-
-for i in np.arange(1,len(flowbyday)):
-        if np.isnan(flowbyday[i])>0:
-                flowbyday[i]=flowbyday[i-1]
-
-if len(flowbyday)>28*months2consider:
-        flowbyday=flowbyday[-months2consider*28:]
-        flowbyweek= flowbyday.reshape(-1, 7)
-        flowweekave= np.mean(flowbyweek,axis=1)
-
-        flowbymonth= flowbyday.reshape(-1, 28)
-        flowmonthave= np.mean(flowbymonth,axis=1)
-
-else:
-        print('you requested too many months of data - for shame!')
-        die
-
-# tried spline ... not good
-from scipy.interpolate import InterpolatedUnivariateSpline
-order = 2
-
-daily_spline = InterpolatedUnivariateSpline(np.arange(weeks2consider*7), flowbyday, k=order)
-flowdaily_spline = daily_spline(np.arange((weeks2consider+weeks2extend)*7))
-weekly_spline = InterpolatedUnivariateSpline(np.arange(weeks2consider), flowweekave, k=order)
-flowweekly_spline = weekly_spline(np.arange((weeks2consider+weeks2extend)))
-monthly_spline = InterpolatedUnivariateSpline(np.arange(int(weeks2consider/4)), flowmonthave, k=order)
-flowmonthly_spline = monthly_spline(np.arange((int(weeks2consider+weeks2extend)/4)))
-
-
-plt.figure()
-plt.plot(np.arange(weeks2consider*7),flowbyday, '*y',label='daily')
-plt.plot((np.arange(weeks2consider)+.5)*7,flowweekave, '*b',label='weekly')
-plt.plot((np.arange(months2consider)+.5)*28,flowmonthave, '*r',label='monthly')
-plt.xlabel('days')
-plt.ylabel('average flow')
-plt.legend()
-plt.show()
-
-plt.figure()
-plt.plot((np.arange(weeks2consider)+.5)*7,flowweekave, '*b',label='calculated')
-plt.plot((np.arange(weeks2consider+weeks2extend)+.5)*7,flowweekly_spline, '-b',label='spline')
-plt.legend()
-plt.xlabel('days')
-plt.ylabel('average flow')
-plt.show()
-
-
-
-
-
-
-
-tryflow=flow.copy()
-lastdataday=datefn(2020, 8, 21)
-np.intersect1(np.where(year>=lastdataday.year), np.where(month>=lastdataday.month)) and np.where(day>=lastdataday.day)
-
-
-# %%
 # define prediction window
 startpred_year = 2020
 startpred_months=[8,8,9,9,9,9,10,10,10,10,11,11,11,11,11,12]
@@ -177,53 +88,97 @@ pred_window=7
 # remove too-recent data
 lastdataday=datefn(2020, 8, 21)
 
-elday=np.zeros((np.shape(year)[0]))
-for i in np.arange(np.shape(year)[0]):
-        tempvar=datefn(year[i], month[i], day[i])-lastdataday
+elday=np.zeros((np.shape(flow_data)[0]))
+for i in np.arange(np.shape(flow_data)[0]):
+        tempvar=datefn(int(flow_data[i,0]), int(flow_data[i,1]), int(flow_data[i,2]))-lastdataday
         elday[i]=tempvar.days
-flow=np.delete(flow,np.where(elday>0))
-year=np.delete(year,np.where(elday>0))
-month=np.delete(month,np.where(elday>0))
-day=np.delete(day,np.where(elday>0))
+
+flowdata_calc=flow_data.copy()
+
+for i in np.arange(3):
+        if i==0:
+                gooddate=np.where((flowdata_calc[:,0]<=2020) & (flowdata_calc[:,1]==9))
+        elif i==1:
+                gooddate=np.where((flowdata_calc[:,0]<2001) & (flowdata_calc[:,1]==9))
+                findyears=flowdata_calc[0,:]<2001
+        else:
+                gooddate=np.where((flowdata_calc[:,0]>2000) & (flowdata_calc[:,1]==9))
+        print('September days = ', np.sum(flowdata_calc[:,1]==9))
+        print('Times exceeded = ', np.sum(flowdata_calc[gooddate,3]>101))
+        print('% exceeded     = ', int(np.sum(flowdata_calc[gooddate,3]>101)/np.sum(flowdata_calc[:,1]==9)*100))
+        print()
 
 # find DOY of each observation
-doy=np.zeros((np.shape(year)[0]))
-for i in np.arange(np.shape(year)[0]):
-        tempvar=datefn(year[i], month[i], day[i])-datefn(year[i], 1, 1)
+doy=np.zeros((np.shape(flowdata_calc)[0]))
+for i in np.arange(np.shape(flowdata_calc)[0]):
+        tempvar=datefn(int(flow_data[i,0]), int(flow_data[i,1]), int(flow_data[i,2]))-datefn(int(flow_data[i,0]), 1, 1)
         doy[i]=tempvar.days
 
-# find mean and median flow for each DOY
-flowarr=np.array(flow)
-uniquedoy=np.unique(doy)
-meanflow_doy=np.zeros((np.shape(uniquedoy)[0]))
-medianflow_doy=np.zeros((np.shape(uniquedoy)[0]))
-for i in np.arange(np.shape(uniquedoy)[0]):
-        meanflow_doy[i]=np.mean(flowarr[np.where(doy==i)])
-        medianflow_doy[i]=np.median(flowarr[np.where(doy==i)])
+# remove last doy for leap years ... crude, but wth
+flowdata_calc=np.delete(flowdata_calc,np.where(doy==365),axis=0)
 
-# find DOY of the start day of each prediction window
-startpred_doy=np.zeros((np.shape(startpred_months)[0]))
-for ij in np.arange(np.shape(startpred_months)[0]):
-        startpred_month=startpred_months[ij]
-        startpred_day=startpred_days[ij]
-        tempvar=datefn(startpred_year, startpred_month, startpred_day)-datefn(startpred_year, 1, 1)
-        startpred_doy[ij] = tempvar.days
+remainder=np.shape(flowdata_calc)[0]%365    # cut down to whole years looking backward from last data date
+flowdata_calc=flowdata_calc[remainder:,:]
+flowcalc_vector=flowdata_calc[:,3].copy()
 
-# find median value of median value for days in prediction window
-holdpreds=np.zeros((np.shape(startpred_months)[0]))
-for ij in np.arange(np.shape(startpred_months)[0]):
-        holdpreds[ij]=np.median(medianflow_doy[int(startpred_doy[ij]):int(startpred_doy[ij])+pred_window])
+flowcalc_vector=np.reshape(flowcalc_vector,(-1,365))
+flowcalc_thisyear=flowcalc_vector[-1,:]
+flowdiff=np.abs(flowcalc_vector-flowcalc_thisyear)
+flowdiff=np.delete(flowdiff,-1,axis=0)
+# flowdiff[flowdiff>100]=100
+flowdiff=(flowdiff+.1)**-2
+# flowdiff=1/flowdiff
 
-# visualize predictions and bases
-plt.plot(doy,np.log10(flow),'.b',label='data')
-plt.plot(uniquedoy,np.log10(meanflow_doy),'r',label='mean_doy')
-plt.plot(uniquedoy,np.log10(medianflow_doy),'g',label='median_doy')
-plt.plot(startpred_doy,np.log10(holdpreds),'.y',label='predictions')
-plt.legend()
-plt.ylabel('log10 flow')
-plt.xlabel('DOY')
-plt.show()
+normfactor=np.sum((flowdiff),axis=0)
+L=flowdiff/normfactor
 
-print(holdpreds)
+Lbyyear=np.sum(L,axis=1)
+matchingyear=np.where(Lbyyear==np.max(Lbyyear))
+worstmatchingyear=np.where(Lbyyear==np.min(Lbyyear))
+
+Lw_flow=np.sum(L*flowcalc_vector[:-1,:],axis=0)
+
+remainder=np.shape(Lw_flow)[0]%7    # cut down to whole years looking backward from last data date
+weekly_flow=np.round(np.mean(np.reshape(Lw_flow[remainder:],(-1,7)),axis=1))
+print('weekly flows starting 8/22:', weekly_flow)
+
+fig = plt.figure()
+ax = plt.subplot(111)
+ax.plot(np.arange(np.shape(Lw_flow)[0]),Lw_flow,'.b')
+plt.xlabel('Days from last observation')
+plt.ylabel('Flow')
+fig.savefig('projection.jpg')
+
+fig = plt.figure()
+ax = plt.subplot(111)
+ax.hist(np.log10(flowcalc_vector[-1,:]), normed=1, alpha = 0.5, label='past year')
+tempvar=np.reshape(flowcalc_vector,(-1,1))
+ax.hist(np.log10(tempvar), normed=1, alpha = 0.5, label='all years')
+plt.ylabel('Normed Frequency')
+plt.xlabel('log10 Flow')
+ax.legend()
+fig.savefig('ave.jpg')
+
+fig = plt.figure()
+ax = plt.subplot(111)
+ax.hist(np.log10(flowcalc_vector[-1,:]), normed=1, alpha = 0.5, label='past year')
+flowcalc_vector_matchingyear=np.squeeze(flowcalc_vector[matchingyear,-365:])
+ax.hist(np.log10(flowcalc_vector_matchingyear), normed=1, alpha = 0.5, label='best match year')
+plt.ylabel('Normed Frequency')
+plt.xlabel('log10 Flow')
+ax.legend()
+fig.savefig('best.jpg')
+
+fig = plt.figure()
+ax = plt.subplot(111)
+ax.hist(np.log10(flowcalc_vector[-1,:]), normed=1, alpha = 0.5, label='past year')
+flowcalc_vector_matchingyear=np.squeeze(flowcalc_vector[worstmatchingyear,-365:])
+ax.hist(np.log10(flowcalc_vector_matchingyear), normed=1, alpha = 0.5, label='worst match year')
+plt.ylabel('Normed Frequency')
+plt.xlabel('log10 Flow')
+ax.legend()
+fig.savefig('worst2.jpg')
+
+
 
 # %%
