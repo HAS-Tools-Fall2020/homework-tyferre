@@ -1,4 +1,7 @@
 Ty   8/27   Assignment 4
+___
+### Grade
+3/3 - Is that week 4 or month 4? I honestly can't tell.  Nice work though!  One thing is that I can't see the images in your markdown though. I will give a link for an atom plugin in the next assignment. You are not alone in this challenge #poorinstruction
 
 ---------
 ## Can you believe that it is already week 4?
