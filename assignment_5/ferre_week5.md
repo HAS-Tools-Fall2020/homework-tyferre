@@ -31,10 +31,12 @@ Timings of min and max flows for each month
 
 ![](assets/ferre_week5-c6fa0155.JPG)
 
-The highest/lowest five are less pretty because there seem to be a lot of 'ties'.
+The highest/lowest five flow dates over over the period of record.
+![](assets/ferre_week5-ae0876ae.JPG)
 
-![](assets/ferre_week5-7fd535cc.JPG)
+It is probably a pretty clear indication that my estimates are too high ... but, I have 117 dates within 10% of my week 1 flow estimate!  A truncated list:
 
+![](assets/ferre_week5-7e70ae3a.JPG)
 # My predictions
 
 The last data that I considered was 8/21/2020.  I am slow to learn, but I am finally accepting that we are in a dry year ....
