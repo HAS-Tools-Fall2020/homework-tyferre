@@ -1,6 +1,11 @@
 Ty   8/27   Assignment 6
 
 ---------
+## &#x1F604; &#x1F44D;
+
+Factorio?  I don't know of this game. Probably best I not look it up until December. I am staying exactly 2 days ahead of this class. The good news is that teaching python does force one to learn it #goals.
+
+___
 ## Week 6, rushed this week ... started playing Factorio ... weekend disappeared
 
 *my algorithm gets continually simpler as I lose faith in statistics*

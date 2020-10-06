@@ -25,8 +25,10 @@ print(filepath)
 # %%
 #Read the data into a pandas dataframe
 data=pd.read_table(filepath, sep = '\t', skiprows=30,
-        names=['agency_cd', 'site_no', 'datetime', 'flow', 'code']
+        names=['agency_cd', 'site_no', 'datetime', 'flow', 'code'], 
+        parse_dates=['datetime']
         )
+
 
 # Expand the dates to year month day
 data['year'] = pd.DatetimeIndex(data['datetime']).year
